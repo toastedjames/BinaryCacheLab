@@ -1,0 +1,39 @@
+{
+  "schema": "bcl-bounded-correspondence-1",
+  "abi": "sysv-amd64-integer",
+  "original": "original/lookup.json",
+  "rebuilt": "rebuilt/lookup.json",
+  "entries": [
+    {
+      "original": 4194816,
+      "rebuilt": 4194816
+    }
+  ],
+  "control_map": [
+    {
+      "original": 4194835,
+      "rebuilt": 4194836
+    }
+  ],
+  "memory_maps": [
+    {
+      "name": "table",
+      "original": 4198400,
+      "rebuilt": 4198464,
+      "size": 8
+    }
+  ],
+  "input_map": [
+    {
+      "original": 0,
+      "rebuilt": 0,
+      "encoding": "scalar"
+    }
+  ],
+  "register_outputs": [
+    {
+      "register": "rax",
+      "encoding": "scalar"
+    }
+  ]
+}

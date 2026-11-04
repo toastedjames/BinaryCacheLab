@@ -1,0 +1,18 @@
+{
+  "schema": "bcl-project-1",
+  "original": "{work}/original-built",
+  "rebuilt": "{work}/rebuilt-built",
+  "output": "../../experiments",
+  "inputs": {
+    "equal_line.c": "../benchmarks/equal_line.c",
+    "fixture.h": "../benchmarks/fixture.h"
+  },
+  "build_jobs": [
+    {"argv": ["gcc", "-O1", "-fPIE", "-pie", "{input:equal_line.c}", "-o", "{work}/original-built"]},
+    {"argv": ["gcc", "-O2", "-fPIE", "-pie", "{input:equal_line.c}", "-o", "{work}/rebuilt-built"]}
+  ],
+  "secrets": ["0", "1"],
+  "repetitions": 3,
+  "timeout": 120,
+  "contracts": {}
+}

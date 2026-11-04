@@ -1,0 +1,8 @@
+*
+!binarycachelab.jar
+!bcl
+!scripts/
+!scripts/*.py
+!qualification/
+!qualification/Dockerfile
+!qualification/run-clean.sh

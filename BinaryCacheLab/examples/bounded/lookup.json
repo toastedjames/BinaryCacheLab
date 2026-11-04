@@ -1,0 +1,42 @@
+{
+  "schema": "bcl-bounded-references-1",
+  "binary": "lookup.elf",
+  "entries": [
+    4194816
+  ],
+  "regions": [
+    {
+      "name": "table",
+      "address": 4198400,
+      "size": 8
+    }
+  ],
+  "machine": {
+    "runtime": "closed-static-x86-64",
+    "instruction_set": "bcl-x86-64-integer-1",
+    "register_defaults": "zero",
+    "initial_registers": {},
+    "flags": "zero",
+    "memory_initialization": "elf-file-bss-zero-stack-zero",
+    "stack": {
+      "address": 7340032,
+      "size": 4096
+    }
+  },
+  "inputs": [
+    {
+      "register": "rdi",
+      "values": [
+        0,
+        1
+      ]
+    }
+  ],
+  "bounds": {
+    "max_steps_per_execution": 100,
+    "max_total_steps": 1000,
+    "max_executions": 2,
+    "max_memory_bytes": 12288,
+    "max_reference_events": 100
+  }
+}

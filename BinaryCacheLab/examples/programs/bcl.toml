@@ -1,0 +1,44 @@
+schema_version = "2.0"
+mode = "program"
+policy = "layout_only"
+output = "runs"
+formats = ["txt", "json", "jsonl", "csv"]
+[build]
+adapter = "auto"
+[lift]
+adapter = "foxdec"
+image = "foxdec"
+timeout = 7200
+[transform]
+adapter = "none"
+[tools]
+pin = "{toolkit}/tools/pin-4.4/kit/pin"
+tracer = "{toolkit}/fixtures/pin/WholeProgramMemoryTracer.so"
+tracer_source = "{toolkit}/fixtures/pin/WholeProgramMemoryTracer.cpp"
+docker = "docker"
+docker_sudo = true
+[execution]
+backend = "pin"
+operations = ["READ", "WRITE"]
+instruction_fetch = false
+repetitions = 1
+timeout = 120
+max_events = 2000000
+max_snapshots = 4096
+disable_aslr = true
+eager_binding = true
+cases = [{id="default", argv=[], public_id="fixed"}]
+[comparison]
+scope = "all"
+line_identity = "raw_virtual"
+line_bytes = 64
+lookahead = 16
+context = 2
+report_sample_limit = 100
+[checks]
+functional = true
+references = false
+layout = false
+event_correspondence = false
+[security]
+enabled = false

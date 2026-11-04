@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+ROOT=$(CDPATH= cd -- "$(dirname -- "$(readlink -f -- "$0")")" && pwd)
+export BCL_ROOT="$ROOT"
+if [ -f "$ROOT/.deps/environment.sh" ]; then
+    . "$ROOT/.deps/environment.sh"
+fi
+PYTHON=${BCL_PYTHON:-python3}
+export PYTHONDONTWRITEBYTECODE=1
+if ! command -v "$PYTHON" >/dev/null 2>&1; then
+    printf 'Run bash setup.sh to install missing dependencies.\n' >&2
+    exit 2
+fi
+exec "$PYTHON" "$ROOT/scripts/console.py" "$@"

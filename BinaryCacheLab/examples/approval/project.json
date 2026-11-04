@@ -1,0 +1,8 @@
+{
+  "schema": "bcl-project-1",
+  "original": "original/lookup.elf",
+  "rebuilt": "rebuilt/lookup.elf",
+  "output": "experiments",
+  "correspondence": "correspondence.json",
+  "approval": "approval.json"
+}

@@ -1,0 +1,11 @@
+{
+  "schema":"bcl-regions-1",
+  "assembly":"multi-region.asm",
+  "line_bytes":64,
+  "placement_base":20480,
+  "regions":[
+    {"name":"region_a","end_label":"region_a_end","address":16440,"size":4,"alignment":4},
+    {"name":"region_b","end_label":"region_b_end","address":16444,"size":4,"alignment":4},
+    {"name":"region_c","end_label":"region_c_end","address":16512,"size":4,"alignment":64}
+  ]
+}

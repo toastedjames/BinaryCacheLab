@@ -1,0 +1,268 @@
+{
+  "schema": "bcl-suite-1",
+  "output_parent": "../experiments",
+  "description": "Assemble/link an explicit NASM fixture, solve multiple regions, apply padding, verify linked byte/line relations and analyze entry-contract reference closure. Does not execute the produced images or claim general safety.",
+  "jobs": [
+    {
+      "id": "assemble-original",
+      "argv": [
+        "nasm",
+        "-felf64",
+        "-o",
+        "${job}/original.o",
+        "${suite}/multi-region.asm"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0
+    },
+    {
+      "id": "link-original",
+      "argv": [
+        "ld",
+        "-shared",
+        "--section-start=.text=0x1000",
+        "--section-start=.data=0x4000",
+        "-o",
+        "${job}/image.so",
+        "${job:assemble-original}/original.o"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "assemble-original"
+      ]
+    },
+    {
+      "id": "plan",
+      "argv": [
+        "java",
+        "-jar",
+        "${app}/binarycachelab.jar",
+        "plan-regions",
+        "${suite}/regions.json",
+        "--report",
+        "${job}/plan.json"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "assertions": [
+        {
+          "file": "${job}/plan.json",
+          "pointer": "/status",
+          "equals": "CONSTRAINTS_SATISFIABLE"
+        }
+      ]
+    },
+    {
+      "id": "candidate",
+      "argv": [
+        "java",
+        "-jar",
+        "${app}/binarycachelab.jar",
+        "apply-regions",
+        "${suite}/regions.json",
+        "--output",
+        "${job}/protected.asm",
+        "--report",
+        "${job}/candidate.json"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "plan"
+      ]
+    },
+    {
+      "id": "assemble-protected",
+      "argv": [
+        "nasm",
+        "-felf64",
+        "-o",
+        "${job}/protected.o",
+        "${job:candidate}/protected.asm"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "candidate"
+      ]
+    },
+    {
+      "id": "link-protected",
+      "argv": [
+        "ld",
+        "-shared",
+        "--section-start=.text=0x1000",
+        "--section-start=.data=0x6000",
+        "-o",
+        "${job}/image.so",
+        "${job:assemble-protected}/protected.o"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "assemble-protected"
+      ]
+    },
+    {
+      "id": "linked-layout",
+      "argv": [
+        "java",
+        "-jar",
+        "${app}/binarycachelab.jar",
+        "verify-regions",
+        "${suite}/regions.json",
+        "--original",
+        "${job:link-original}/image.so",
+        "--rebuilt",
+        "${job:link-protected}/image.so",
+        "--report",
+        "${job}/layout.json"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "link-original",
+        "link-protected"
+      ],
+      "assertions": [
+        {
+          "file": "${job}/layout.json",
+          "pointer": "/declared_byte_line_equality_preserved",
+          "equals": true
+        },
+        {
+          "file": "${job}/layout.json",
+          "pointer": "/automatic_rewrite_allowed",
+          "equals": false
+        }
+      ]
+    },
+    {
+      "id": "disassemble-original",
+      "argv": [
+        "objdump",
+        "-d",
+        "-w",
+        "-Mintel",
+        "${job:link-original}/image.so"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "link-original"
+      ]
+    },
+    {
+      "id": "disassemble-protected",
+      "argv": [
+        "objdump",
+        "-d",
+        "-w",
+        "-Mintel",
+        "${job:link-protected}/image.so"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "link-protected"
+      ]
+    },
+    {
+      "id": "profile-original",
+      "argv": [
+        "python3",
+        "-c",
+        "import json,sys; report=json.load(open(sys.argv[3])); which=sys.argv[4]; regions=[{'name':r['name'],'address':r[which],'size':r['size'],'immutable':True} for r in report['regions']]; p={'schema':'bcl-closure-1','binary':sys.argv[1],'disassembly':sys.argv[2],'entries':[4096],'regions':regions,'initial_registers':{'rsp':'stack'},'observed_return_registers':['rax'],'stack_disjoint_from_regions':True,'external_contracts':[],'state_budget':100000}; open(sys.argv[5],'x').write(json.dumps(p))",
+        "${job:link-original}/image.so",
+        "${job:disassemble-original}/stdout.log",
+        "${job:linked-layout}/layout.json",
+        "original_address",
+        "${job}/closure.json"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "linked-layout",
+        "disassemble-original"
+      ]
+    },
+    {
+      "id": "closure-original",
+      "argv": [
+        "java",
+        "-jar",
+        "${app}/binarycachelab.jar",
+        "closure",
+        "${job:profile-original}/closure.json",
+        "--report",
+        "${job}/closure.json"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "profile-original"
+      ],
+      "assertions": [
+        {
+          "file": "${job}/closure.json",
+          "pointer": "/status",
+          "equals": "CLOSED_UNDER_DECLARED_ENTRY_CONTRACT"
+        },
+        {
+          "file": "${job}/closure.json",
+          "pointer": "/automatic_rewrite_allowed",
+          "equals": false
+        }
+      ]
+    },
+    {
+      "id": "profile-protected",
+      "argv": [
+        "python3",
+        "-c",
+        "import json,sys; report=json.load(open(sys.argv[3])); which=sys.argv[4]; regions=[{'name':r['name'],'address':r[which],'size':r['size'],'immutable':True} for r in report['regions']]; p={'schema':'bcl-closure-1','binary':sys.argv[1],'disassembly':sys.argv[2],'entries':[4096],'regions':regions,'initial_registers':{'rsp':'stack'},'observed_return_registers':['rax'],'stack_disjoint_from_regions':True,'external_contracts':[],'state_budget':100000}; open(sys.argv[5],'x').write(json.dumps(p))",
+        "${job:link-protected}/image.so",
+        "${job:disassemble-protected}/stdout.log",
+        "${job:linked-layout}/layout.json",
+        "rebuilt_address",
+        "${job}/closure.json"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "linked-layout",
+        "disassemble-protected"
+      ]
+    },
+    {
+      "id": "closure-protected",
+      "argv": [
+        "java",
+        "-jar",
+        "${app}/binarycachelab.jar",
+        "closure",
+        "${job:profile-protected}/closure.json",
+        "--report",
+        "${job}/closure.json"
+      ],
+      "timeout_seconds": 120,
+      "expected_exit": 0,
+      "requires": [
+        "profile-protected"
+      ],
+      "assertions": [
+        {
+          "file": "${job}/closure.json",
+          "pointer": "/status",
+          "equals": "CLOSED_UNDER_DECLARED_ENTRY_CONTRACT"
+        },
+        {
+          "file": "${job}/closure.json",
+          "pointer": "/automatic_rewrite_allowed",
+          "equals": false
+        }
+      ]
+    }
+  ]
+}

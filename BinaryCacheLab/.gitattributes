@@ -1,0 +1,8 @@
+* text=auto
+*.sh text eol=lf
+*.py text eol=lf
+bcl text eol=lf
+*.jar binary
+*.zip binary
+*.elf binary
+fixtures/group_lookup/original binary

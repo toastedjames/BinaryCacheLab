@@ -1,0 +1,313 @@
+{
+  "schema": "bcl-suite-1",
+  "output_parent": "../experiments",
+  "description": "Tool prerequisites and functional fixtures; cache/FoxDec qualification is separate and still must be run.",
+  "jobs": [
+    {
+      "id": "tool-java",
+      "argv": [
+        "java",
+        "-version"
+      ],
+      "timeout_seconds": 30,
+      "expected_exit": 0
+    },
+    {
+      "id": "tool-gcc",
+      "argv": [
+        "gcc",
+        "--version"
+      ],
+      "timeout_seconds": 30,
+      "expected_exit": 0
+    },
+    {
+      "id": "tool-nasm",
+      "argv": [
+        "nasm",
+        "-v"
+      ],
+      "timeout_seconds": 30,
+      "expected_exit": 0
+    },
+    {
+      "id": "tool-objdump",
+      "argv": [
+        "objdump",
+        "--version"
+      ],
+      "timeout_seconds": 30,
+      "expected_exit": 0
+    },
+    {
+      "id": "tool-nm",
+      "argv": [
+        "nm",
+        "--version"
+      ],
+      "timeout_seconds": 30,
+      "expected_exit": 0
+    },
+    {
+      "id": "tool-python",
+      "argv": [
+        "python3",
+        "--version"
+      ],
+      "timeout_seconds": 30,
+      "expected_exit": 0
+    },
+    {
+      "id": "build-equal_line",
+      "argv": [
+        "gcc",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-fPIE",
+        "-pie",
+        "${suite}/benchmarks/equal_line.c",
+        "-o",
+        "${job}/program"
+      ],
+      "requires": [
+        "tool-gcc"
+      ],
+      "timeout_seconds": 60,
+      "expected_exit": 0
+    },
+    {
+      "id": "equal_line-0",
+      "argv": [
+        "${job:build-equal_line}/program",
+        "0"
+      ],
+      "requires": [
+        "build-equal_line"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "7\n",
+      "stderr": ""
+    },
+    {
+      "id": "equal_line-1",
+      "argv": [
+        "${job:build-equal_line}/program",
+        "1"
+      ],
+      "requires": [
+        "build-equal_line",
+        "equal_line-0"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "7\n",
+      "stderr": "",
+      "equal_stdout_to": "equal_line-0"
+    },
+    {
+      "id": "equal_line-invalid",
+      "argv": [
+        "${job:build-equal_line}/program",
+        "2"
+      ],
+      "requires": [
+        "build-equal_line"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 2,
+      "stdout": "",
+      "stderr": "secret must be 0 or 1\n"
+    },
+    {
+      "id": "build-secret_line",
+      "argv": [
+        "gcc",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-fPIE",
+        "-pie",
+        "${suite}/benchmarks/secret_line.c",
+        "-o",
+        "${job}/program"
+      ],
+      "requires": [
+        "tool-gcc"
+      ],
+      "timeout_seconds": 60,
+      "expected_exit": 0
+    },
+    {
+      "id": "secret_line-0",
+      "argv": [
+        "${job:build-secret_line}/program",
+        "0"
+      ],
+      "requires": [
+        "build-secret_line"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "7\n",
+      "stderr": ""
+    },
+    {
+      "id": "secret_line-1",
+      "argv": [
+        "${job:build-secret_line}/program",
+        "1"
+      ],
+      "requires": [
+        "build-secret_line",
+        "secret_line-0"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "7\n",
+      "stderr": "",
+      "equal_stdout_to": "secret_line-0"
+    },
+    {
+      "id": "secret_line-invalid",
+      "argv": [
+        "${job:build-secret_line}/program",
+        "2"
+      ],
+      "requires": [
+        "build-secret_line"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 2,
+      "stdout": "",
+      "stderr": "secret must be 0 or 1\n"
+    },
+    {
+      "id": "build-multiple_regions",
+      "argv": [
+        "gcc",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-fPIE",
+        "-pie",
+        "${suite}/benchmarks/multiple_regions.c",
+        "-o",
+        "${job}/program"
+      ],
+      "requires": [
+        "tool-gcc"
+      ],
+      "timeout_seconds": 60,
+      "expected_exit": 0
+    },
+    {
+      "id": "multiple_regions-0",
+      "argv": [
+        "${job:build-multiple_regions}/program",
+        "0"
+      ],
+      "requires": [
+        "build-multiple_regions"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "16\n",
+      "stderr": ""
+    },
+    {
+      "id": "multiple_regions-1",
+      "argv": [
+        "${job:build-multiple_regions}/program",
+        "1"
+      ],
+      "requires": [
+        "build-multiple_regions",
+        "multiple_regions-0"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "16\n",
+      "stderr": "",
+      "equal_stdout_to": "multiple_regions-0"
+    },
+    {
+      "id": "multiple_regions-invalid",
+      "argv": [
+        "${job:build-multiple_regions}/program",
+        "2"
+      ],
+      "requires": [
+        "build-multiple_regions"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 2,
+      "stdout": "",
+      "stderr": "secret must be 0 or 1\n"
+    },
+    {
+      "id": "build-crossing_lines",
+      "argv": [
+        "gcc",
+        "-std=c11",
+        "-O1",
+        "-g",
+        "-fPIE",
+        "-pie",
+        "${suite}/benchmarks/crossing_lines.c",
+        "-o",
+        "${job}/program"
+      ],
+      "requires": [
+        "tool-gcc"
+      ],
+      "timeout_seconds": 60,
+      "expected_exit": 0
+    },
+    {
+      "id": "crossing_lines-0",
+      "argv": [
+        "${job:build-crossing_lines}/program",
+        "0"
+      ],
+      "requires": [
+        "build-crossing_lines"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "56\n",
+      "stderr": ""
+    },
+    {
+      "id": "crossing_lines-1",
+      "argv": [
+        "${job:build-crossing_lines}/program",
+        "1"
+      ],
+      "requires": [
+        "build-crossing_lines",
+        "crossing_lines-0"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 0,
+      "stdout": "56\n",
+      "stderr": "",
+      "equal_stdout_to": "crossing_lines-0"
+    },
+    {
+      "id": "crossing_lines-invalid",
+      "argv": [
+        "${job:build-crossing_lines}/program",
+        "2"
+      ],
+      "requires": [
+        "build-crossing_lines"
+      ],
+      "timeout_seconds": 10,
+      "expected_exit": 2,
+      "stdout": "",
+      "stderr": "secret must be 0 or 1\n"
+    }
+  ]
+}

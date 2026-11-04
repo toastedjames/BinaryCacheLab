@@ -1,0 +1,75 @@
+schema_version = "2.0"
+policy = "region_relative"
+output = "runs"
+formats = ["txt", "json", "jsonl", "csv"]
+
+[build]
+original = [["nasm", "-f", "elf64", "{input}", "-o", "{work}/original.o"], ["ld", "-m", "elf_x86_64", "-e", "_start", "{work}/original.o", "-o", "{original}"]]
+
+[lift]
+adapter = "foxdec"
+image = "foxdec"
+timeout = 7200
+
+[transform]
+adapter = "regions"
+region_names = ["table0", "table1"]
+end_symbols = ["L_.data_0x{original_end:x}", "L_.data_END"]
+alignments = [4, 4]
+
+[protection]
+approval_profile = "contract.json"
+
+[tools]
+pin = "{toolkit}/tools/pin-4.4/kit/pin"
+tracer = "{toolkit}/fixtures/pin/WholeProgramMemoryTracer.so"
+tracer_source = "{toolkit}/fixtures/pin/WholeProgramMemoryTracer.cpp"
+docker = "docker"
+docker_sudo = true
+
+[execution]
+backend = "pin"
+operations = ["READ", "WRITE"]
+instruction_fetch = false
+repetitions = 2
+timeout = 120
+max_events = 20000
+max_snapshots = 4096
+disable_aslr = true
+eager_binding = true
+cases = [{id="secret0", argv=["0"], public_id="fixed"}, {id="secret1", argv=["1"], public_id="fixed"}]
+
+[comparison]
+scope = "declared_regions"
+line_identity = "region_relative"
+line_bytes = 64
+lookahead = 16
+context = 2
+report_sample_limit = 100
+
+[checks]
+functional = true
+references = true
+layout = true
+event_correspondence = true
+
+[[regions]]
+name = "table0"
+size = 8
+original = {symbol="table0"}
+baseline = {symbol="L_.data_0x{original_address:x}"}
+transformed = {symbol="L_.data_0x{original_address:x}"}
+
+[[regions]]
+name = "table1"
+size = 8
+original = {symbol="table1"}
+baseline = {symbol="L_.data_0x{original_address:x}"}
+transformed = {symbol="L_.data_0x{original_address:x}"}
+
+[security]
+enabled = true
+criterion = "stable_disjoint_virtual_line_sequences"
+variant = "transformed"
+cases = ["secret0", "secret1"]
+secret_argv_index = 0

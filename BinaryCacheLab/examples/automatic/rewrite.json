@@ -1,0 +1,25 @@
+{
+  "schema": "bcl-automatic-rewrite-1",
+  "original": "original/lookup.json",
+  "regions": [
+    {
+      "name": "table",
+      "address": 4198400,
+      "size": 8,
+      "alignment": 4
+    }
+  ],
+  "destinations": [
+    4198404,
+    4198464
+  ],
+  "secret_inputs": [
+    0
+  ],
+  "register_outputs": [
+    {
+      "register": "rax",
+      "encoding": "scalar"
+    }
+  ]
+}

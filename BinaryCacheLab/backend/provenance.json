@@ -1,0 +1,7 @@
+{
+  "files": {
+    "whole_trace_check.py": "d9adc42e3d620a538885bddbc28c1e05f8b688fcf4376bbc72f6a54603104b53",
+    "collect_whole.py": "053f9c728b9f0aa85de2a748f0dee258bea56b3413aeaff55e3502da471651bd"
+  },
+  "role": "Whole-2 collectors with optional fixed public argv/stdin; default single-argument contract retained"
+}

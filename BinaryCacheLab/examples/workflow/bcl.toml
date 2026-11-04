@@ -1,0 +1,99 @@
+schema_version = "2.0"
+policy = "region_relative"
+output = "runs"
+formats = ["txt", "json", "jsonl", "csv"]
+
+[build]
+original = [["nasm", "-f", "elf64", "{input}", "-o", "{work}/original.o"], ["gcc", "-pie", "{work}/original.o", "-o", "{original}"]]
+
+[lift]
+adapter = "foxdec"
+image = "foxdec"
+timeout = 7200
+
+[transform]
+adapter = "regions"
+region_names = ["group"]
+end_symbols = ["L_.data_END"]
+alignments = [4]
+
+[tools]
+pin = "{toolkit}/tools/pin-4.4/kit/pin"
+tracer = "{toolkit}/fixtures/pin/WholeProgramMemoryTracer.so"
+tracer_source = "{toolkit}/fixtures/pin/WholeProgramMemoryTracer.cpp"
+docker = "docker"
+docker_sudo = true
+
+[execution]
+backend = "pin"
+operations = ["READ", "WRITE"]
+instruction_fetch = false
+repetitions = 1
+timeout = 120
+max_events = 2000000
+max_snapshots = 4096
+disable_aslr = true
+# Resolve dynamic symbols before execution to avoid the loader XSAVEC resolver.
+# The identical setting is recorded for native and instrumented runs.
+eager_binding = true
+cases = [{id="secret0", argv=["0"], public_id="fixed"}, {id="secret1", argv=["1"], public_id="fixed"}]
+
+[comparison]
+scope = "declared_regions"
+line_identity = "region_relative"
+line_bytes = 64
+lookahead = 16
+context = 2
+report_sample_limit = 100
+
+[checks]
+functional = true
+references = true
+layout = true
+event_correspondence = true
+
+[[regions]]
+name = "group"
+size = 8
+original = {symbol="group"}
+baseline = {symbol="L_.data_0x{original_address:x}"}
+transformed = {symbol="L_.data_0x{original_address:x}"}
+
+[[layout_constraints]]
+id = "LAYOUT-CONTENTS"
+kind = "contents"
+source = "original"
+target = "transformed"
+
+[[layout_constraints]]
+id = "LAYOUT-LINES"
+kind = "line_partition"
+source = "original"
+target = "transformed"
+
+[[layout_constraints]]
+id = "LAYOUT-ALIGNMENT"
+kind = "alignment"
+region = "group"
+bytes = 4
+variants = ["original", "baseline", "transformed"]
+
+[[layout_constraints]]
+id = "LAYOUT-NONOVERLAP"
+kind = "non_overlap"
+variants = ["original", "baseline", "transformed"]
+
+[reference_analysis]
+adapter = "declared_lookup_kernel"
+region = "group"
+entry_symbols = {original="lookup", baseline="lookup", transformed="lookup"}
+immutable_region = true
+entry_stack = "fixed-valid-return"
+execution = "ordinary-x86-64"
+
+[security]
+enabled = true
+criterion = "configured_virtual_line_sequences"
+variant = "transformed"
+cases = ["secret0", "secret1"]
+secret_argv_index = 0

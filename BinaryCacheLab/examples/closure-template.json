@@ -1,0 +1,25 @@
+{
+  "schema": "bcl-closure-1",
+  "binary": "/path/to/program",
+  "disassembly": "/path/to/objdump.log",
+  "entries": [
+    4429
+  ],
+  "regions": [
+    {
+      "name": "group",
+      "address": 16504,
+      "size": 8,
+      "immutable": true
+    }
+  ],
+  "initial_registers": {
+    "rsp": "stack"
+  },
+  "observed_return_registers": [
+    "rax"
+  ],
+  "stack_disjoint_from_regions": true,
+  "external_contracts": [],
+  "state_budget": 100000
+}

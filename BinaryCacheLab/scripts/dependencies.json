@@ -1,0 +1,14 @@
+{
+  "schema": "bcl-setup-dependencies-1",
+  "platform": "linux-x86_64",
+  "python_minimum": "3.11",
+  "java_minimum": 17,
+  "java_release": "jdk-17.0.17+10",
+  "java_archive": "OpenJDK17U-jdk_x64_linux_hotspot_17.0.17_10.tar.gz",
+  "java_repository": "adoptium/temurin17-binaries",
+  "pin_version": "4.4",
+  "foxdec_release": "v0.7",
+  "foxdec_url": "https://raw.githubusercontent.com/ssrg-vt/FoxDec/0abd8c85cda0ccf3da9ef6683acb77a99c04b8b6/foxdec/release/FoxDec.zip",
+  "foxdec_sha256": "783ab34ac419fb00646994db520ab1c943382773002f0797bdbf80592b7ed262",
+  "system_packages": ["nasm", "build-essential", "binutils", "util-linux", "coreutils", "docker.io", "ca-certificates", "unzip", "curl"]
+}

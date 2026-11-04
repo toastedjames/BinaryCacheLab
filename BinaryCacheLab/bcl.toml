@@ -1,0 +1,40 @@
+# Controlled C -> FoxDec fixture. Pre-lifted assembly, not fresh lifting.
+# Relative backend paths are resolved against this config file.
+schema = 1
+[project]
+output = "experiments"
+[input]
+original = "fixtures/group_lookup/original"
+assembly = "fixtures/group_lookup/group_lookup.asm"
+helper = "fixtures/group_lookup/__gmon_start__.c"
+[lift]
+# First rehearse the pre-lifted fixture. Enable only with a built compatible image.
+enabled = false
+image = "foxdec"
+timeout = 1800
+[observation]
+model = "ordered-raw-virtual-lines"
+line_bytes = 64
+[tools]
+python = "python3"
+docker = "docker"
+# Opt in only when needed. Authenticate in the terminal with sudo -v first.
+docker_sudo = false
+backend = "backend"
+pin = "/absolute/path/to/pin"
+tracer = "fixtures/pin/WholeProgramMemoryTracer.so"
+tracer_source = "fixtures/pin/WholeProgramMemoryTracer.cpp"
+[region]
+first = "L_.data_0x4078"
+second = "L_.data_0x407c"
+end = "L_.data_END"
+address = 0x4078
+first_bytes = 4
+second_bytes = 4
+shift = 4
+[experiment]
+repetitions = 3
+timeout = 120
+eager_binding = true
+# Explicit fixture experiment; incomplete coverage is not promoted to safe rewriting.
+research_mode = true

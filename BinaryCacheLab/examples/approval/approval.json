@@ -1,0 +1,21 @@
+{
+  "schema": "bcl-bounded-transformation-1",
+  "correspondence": "correspondence.json",
+  "observer": {
+    "policy": "ordered-raw-virtual-lines",
+    "line_bytes": 64
+  },
+  "secret_inputs": [
+    0
+  ],
+  "require_nonvacuous": true,
+  "layout": {
+    "policy": "preserve-byte-line-partition",
+    "regions": [
+      {
+        "name": "table",
+        "alignment": 4
+      }
+    ]
+  }
+}
